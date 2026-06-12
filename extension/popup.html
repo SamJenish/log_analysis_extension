@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Log Failure Analyzer</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <div class="popup-shell">
+      <header>
+        <h1>Log Failure Analyzer</h1>
+        <p>Paste a CI/CD or container log and inspect deployment failure reasons. Or select an error directly on the page for a right-side explanation panel.</p>
+      </header>
+
+      <form id="analyze-form">
+        <label for="log-input">Deployment Log</label>
+        <textarea id="log-input" rows="10" placeholder="Paste deployment log here"></textarea>
+        <button type="submit">Analyze</button>
+      </form>
+
+      <section id="result-card" class="result-card hidden">
+        <h2>Analysis</h2>
+        <pre id="result-output"></pre>
+      </section>
+    </div>
+    <script type="module" src="popup.js"></script>
+  </body>
+</html>

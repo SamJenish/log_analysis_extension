@@ -1,0 +1,81 @@
+:root {
+  color-scheme: light;
+  font-family: Inter, system-ui, sans-serif;
+  background: #f4f7fb;
+  color: #111827;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  min-height: 100%;
+}
+
+body {
+  padding: 2rem;
+}
+
+.page-shell {
+  max-width: 900px;
+  margin: 0 auto;
+  display: grid;
+  gap: 1.5rem;
+}
+
+.hero {
+  padding: 2rem;
+  background: #ffffff;
+  border-radius: 1rem;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+}
+
+.analyze-form {
+  display: grid;
+  gap: 1rem;
+}
+
+textarea {
+  width: 100%;
+  padding: 1rem;
+  border-radius: 0.75rem;
+  border: 1px solid #d1d5db;
+  resize: vertical;
+  font: inherit;
+}
+
+button {
+  width: fit-content;
+  padding: 0.9rem 1.6rem;
+  border: none;
+  border-radius: 0.75rem;
+  background: #2563eb;
+  color: white;
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.status-card {
+  padding: 1.5rem;
+  background: white;
+  border-radius: 1rem;
+  border: 1px solid #e5e7eb;
+  white-space: pre-wrap;
+}
+
+.status-card.error {
+  border-color: #fee2e2;
+  background: #fff1f2;
+  color: #b91c1c;
+}
+
+.status-card.result {
+  border-color: #d1fae5;
+  background: #ecfdf5;
+}

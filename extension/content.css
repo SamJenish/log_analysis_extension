@@ -1,0 +1,92 @@
+.log-failure-analyzer-sidebar {
+  position: fixed;
+  top: 8%;
+  right: 16px;
+  width: min(420px, 90vw);
+  height: 80vh;
+  background: #ffffff;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  border-radius: 18px;
+  box-shadow: 0 24px 68px rgba(15, 23, 42, 0.18);
+  padding: 1rem;
+  z-index: 2147483647;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  overflow: hidden;
+  font-family: Inter, system-ui, sans-serif;
+}
+
+.log-failure-analyzer-sidebar.hidden {
+  display: none;
+}
+
+.log-failure-analyzer-sidebar .analyzer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.log-failure-analyzer-sidebar h2 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.log-failure-analyzer-sidebar p {
+  margin: 0.25rem 0 0;
+  color: #475569;
+  font-size: 0.95rem;
+}
+
+.log-failure-analyzer-sidebar button {
+  appearance: none;
+  border: none;
+  background: transparent;
+  color: #111827;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.log-failure-analyzer-sidebar .analyzer-body {
+  flex: 1;
+  display: grid;
+  gap: 1rem;
+  overflow: auto;
+  padding-right: 0.25rem;
+}
+
+.log-failure-analyzer-sidebar .selection-preview,
+.log-failure-analyzer-sidebar .analysis-result {
+  background: #f8fafc;
+  border-radius: 1rem;
+  padding: 0.9rem;
+  border: 1px solid #e2e8f0;
+}
+
+.log-failure-analyzer-sidebar pre {
+  margin: 0.5rem 0 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-size: 0.95rem;
+  color: #0f172a;
+}
+
+.log-failure-analyzer-float-button {
+  position: fixed;
+  z-index: 2147483647;
+  padding: 0.75rem 1rem;
+  border-radius: 999px;
+  border: none;
+  background: #2563eb;
+  color: #ffffff;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 16px 40px rgba(37, 99, 235, 0.22);
+  transition: opacity 0.2s ease;
+}
+
+.log-failure-analyzer-float-button.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
