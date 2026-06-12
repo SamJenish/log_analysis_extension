@@ -9,21 +9,54 @@
   <body>
     <div class="popup-shell">
       <header>
-        <h1>Log Failure Analyzer</h1>
-        <p>Paste a CI/CD or container log and inspect deployment failure reasons. Or select an error directly on the page for a right-side explanation panel.</p>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <h1>Log Analyzer</h1>
+            <p>Quick error analysis in your browser</p>
+          </div>
+          <button id="settings-btn" style="padding: 6px 12px; background: #f0f0f0; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">⚙️ Settings</button>
+        </div>
       </header>
 
+      <!-- Authentication Required Notice -->
+      <section id="auth-section" style="display: none; background: #fff3cd; padding: 12px; border-radius: 4px; margin-bottom: 16px; font-size: 12px; color: #856404;">
+        <strong>Authentication Required</strong>
+        <p style="margin: 4px 0 0 0;">Please click Settings to log in with GitHub</p>
+      </section>
+
+      <!-- Analyze Form -->
       <form id="analyze-form">
-        <label for="log-input">Deployment Log</label>
-        <textarea id="log-input" rows="10" placeholder="Paste deployment log here"></textarea>
-        <button type="submit">Analyze</button>
+        <label for="log-input" style="display: block; margin-bottom: 8px; font-weight: 600; font-size: 12px;">Deployment Log</label>
+        <textarea 
+          id="log-input" 
+          rows="8" 
+          placeholder="Paste deployment log here (or select text on any page)"
+          style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-family: monospace; font-size: 11px; resize: vertical;"
+        ></textarea>
+        <button type="submit" style="width: 100%; margin-top: 8px; padding: 10px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">Analyze Error</button>
       </form>
 
-      <section id="result-card" class="result-card hidden">
-        <h2>Analysis</h2>
-        <pre id="result-output"></pre>
+      <!-- Result Card -->
+      <section id="result-card" class="result-card hidden" style="margin-top: 16px; padding: 12px; background: #f8f8f8; border-radius: 4px; border-left: 3px solid #667eea;">
+        <h2 style="margin: 0 0 12px 0; font-size: 14px;">Analysis Result</h2>
+        <pre id="result-output" style="margin: 0; font-size: 11px; color: #333; overflow-x: auto; line-height: 1.6; white-space: pre-wrap; word-wrap: break-word;"></pre>
       </section>
+
+      <!-- History Section -->
+      <section id="history-section" class="history-section hidden" style="margin-top: 16px; padding: 12px; background: #f8f8f8; border-radius: 4px;">
+        <h3 style="margin: 0 0 12px 0; font-size: 12px; font-weight: 600;">Analysis History</h3>
+        <div id="history-list" style="max-height: 200px; overflow-y: auto; font-size: 11px;">Loading...</div>
+      </section>
+
+      <!-- History Toggle Button -->
+      <button id="history-btn" style="width: 100%; margin-top: 16px; padding: 8px; background: #f0f0f0; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; color: #333;">📋 View History</button>
+
+      <!-- Footer -->
+      <footer style="margin-top: 16px; padding-top: 12px; border-top: 1px solid #eee; text-align: center; font-size: 10px; color: #999;">
+        <p style="margin: 0;">v1.0.0 | Right-click extension icon to manage</p>
+      </footer>
     </div>
-    <script type="module" src="popup.js"></script>
+
+    <script src="popup.js"></script>
   </body>
 </html>

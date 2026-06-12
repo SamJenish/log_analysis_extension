@@ -1,13 +1,34 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 
 export async function POST(request: NextRequest) {
   try {
+    // Check authentication
+    const session = await getServerSession(authOptions);
+    
+    if (!session || !session.user) {
+      return NextResponse.json(
+        { error: "Unauthorized - please log in" },
+        { status: 401 }
+      );
+    }
+
     const { log } = await request.json();
 
     if (!log || typeof log !== "string") {
       return NextResponse.json(
         { error: "Log content is required" },
+        { status: 400 }
+      );
+    }
+
+    // Validate log length
+    if (log.trim().length < 10) {
+      return NextResponse.json(
+        { error: "Log content must be at least 10 characters" },
         { status: 400 }
       );
     }
@@ -38,9 +59,28 @@ Please provide:
     const result = await model.generateContent(prompt);
     const analysis = result.response.text();
 
+    // Get user ID from session
+    const userId = (session.user as { id?: string }).id;
+    if (!userId) {
+      return NextResponse.json(
+        { error: "Could not determine user ID" },
+        { status: 400 }
+      );
+    }
+
+    // Save to database
+    const historyEntry = await prisma.historyEntry.create({
+      data: {
+        userId,
+        logInput: log.substring(0, 1000), // Store first 1000 chars
+        result: analysis,
+      },
+    });
+
     return NextResponse.json({
       result: analysis,
       success: true,
+      entryId: historyEntry.id,
     });
   } catch (error) {
     console.error("Analysis error:", error);

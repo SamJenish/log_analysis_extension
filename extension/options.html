@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Log Analyzer - Settings</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Oxygen, Ubuntu, Cantarell, sans-serif;
+        background: #f5f5f5;
+        padding: 20px;
+        color: #333;
+      }
+
+      .settings-container {
+        max-width: 600px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        padding: 32px;
+      }
+
+      h1 {
+        font-size: 24px;
+        margin-bottom: 8px;
+        color: #333;
+      }
+
+      .subtitle {
+        font-size: 14px;
+        color: #999;
+        margin-bottom: 32px;
+      }
+
+      .settings-section {
+        margin-bottom: 32px;
+        padding-bottom: 32px;
+        border-bottom: 1px solid #eee;
+      }
+
+      .settings-section:last-child {
+        border-bottom: none;
+      }
+
+      .section-title {
+        font-size: 16px;
+        font-weight: 600;
+        margin-bottom: 16px;
+        color: #333;
+      }
+
+      .form-group {
+        margin-bottom: 16px;
+      }
+
+      label {
+        display: block;
+        font-size: 12px;
+        font-weight: 600;
+        margin-bottom: 6px;
+        color: #666;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      input[type="text"],
+      input[type="url"] {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+        font-family: monospace;
+      }
+
+      input[type="text"]:focus,
+      input[type="url"]:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      }
+
+      .status-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 600;
+        margin-top: 8px;
+      }
+
+      .status-badge.authenticated {
+        background: #d4edda;
+        color: #155724;
+      }
+
+      .status-badge.not-authenticated {
+        background: #f8d7da;
+        color: #721c24;
+      }
+
+      button {
+        padding: 10px 16px;
+        border: none;
+        border-radius: 4px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        width: 100%;
+      }
+
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+      }
+
+      .btn-secondary {
+        background: #f0f0f0;
+        color: #333;
+        margin-right: 8px;
+      }
+
+      .btn-secondary:hover {
+        background: #e0e0e0;
+      }
+
+      .button-group {
+        display: flex;
+        gap: 8px;
+        margin-top: 16px;
+      }
+
+      .message {
+        padding: 12px;
+        border-radius: 4px;
+        margin-bottom: 16px;
+        font-size: 13px;
+      }
+
+      .message.success {
+        background: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+      }
+
+      .message.error {
+        background: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+      }
+
+      .message.info {
+        background: #d1ecf1;
+        color: #0c5460;
+        border: 1px solid #bee5eb;
+      }
+
+      .user-info {
+        background: #f8f8f8;
+        padding: 12px;
+        border-radius: 4px;
+        font-size: 12px;
+        margin-bottom: 16px;
+      }
+
+      .user-info strong {
+        display: block;
+        margin-bottom: 4px;
+        color: #333;
+      }
+
+      .user-info small {
+        color: #999;
+      }
+
+      hr {
+        border: none;
+        border-top: 1px solid #eee;
+        margin: 16px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="settings-container">
+      <h1>Log Analyzer Settings</h1>
+      <p class="subtitle">Configure your extension and authenticate with GitHub</p>
+
+      <!-- Message Container -->
+      <div id="message-container"></div>
+
+      <!-- Authentication Section -->
+      <div class="settings-section">
+        <h2 class="section-title">🔐 Authentication</h2>
+
+        <div id="auth-status">
+          <div class="status-badge not-authenticated" id="auth-badge">
+            Not Authenticated
+          </div>
+        </div>
+
+        <div id="user-info" class="user-info hidden">
+          <strong id="user-name">-</strong>
+          <small id="user-email">-</small>
+        </div>
+
+        <hr />
+
+        <p style="font-size: 13px; color: #666; margin-bottom: 16px;">
+          Log in with GitHub to save your analyses and sync across devices.
+        </p>
+
+        <div class="button-group">
+          <button id="login-btn" class="btn-primary">Login with GitHub</button>
+          <button id="logout-btn" class="btn-secondary hidden">Logout</button>
+        </div>
+
+        <p
+          style="font-size: 11px; color: #999; margin-top: 12px; line-height: 1.6;"
+        >
+          We use GitHub OAuth for secure authentication. Your token is stored
+          locally and never shared with third parties.
+        </p>
+      </div>
+
+      <!-- Backend Configuration -->
+      <div class="settings-section">
+        <h2 class="section-title">⚙️ Backend Configuration</h2>
+
+        <div class="form-group">
+          <label for="backend-url">Backend API URL</label>
+          <input
+            type="url"
+            id="backend-url"
+            placeholder="https://api.yourapp.com"
+            value="http://localhost:3000"
+          />
+          <p style="font-size: 11px; color: #999; margin-top: 6px;">
+            Leave empty to use default: https://api.logsmart.app
+          </p>
+        </div>
+
+        <button id="save-config-btn" class="btn-primary">Save Configuration</button>
+      </div>
+
+      <!-- About Section -->
+      <div class="settings-section">
+        <h2 class="section-title">ℹ️ About</h2>
+
+        <div
+          style="font-size: 12px; color: #666; line-height: 1.8; background: #f8f8f8; padding: 12px; border-radius: 4px;"
+        >
+          <p><strong>Log Failure Analyzer v1.0.0</strong></p>
+          <p style="margin-top: 8px;">
+            An intelligent browser extension for analyzing deployment errors
+            instantly.
+          </p>
+          <p style="margin-top: 8px; color: #999;">
+            <strong>Features:</strong>
+          </p>
+          <ul style="margin-left: 16px; margin-top: 4px;">
+            <li>One-click error analysis</li>
+            <li>Smart caching for instant repeat analysis</li>
+            <li>View your analysis history</li>
+            <li>Works on any CI/CD dashboard</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <script src="options.js"></script>
+  </body>
+</html>
