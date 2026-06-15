@@ -1,17 +1,16 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { validateBearerToken } from "@/lib/token-validation";
 import { prisma } from "@/lib/prisma";
 
 export async function POST(request: NextRequest) {
   try {
-    // Check authentication
-    const session = await getServerSession(authOptions);
-    
-    if (!session || !session.user) {
+    // Validate Bearer token
+    const userId = await validateBearerToken(request);
+
+    if (!userId) {
       return NextResponse.json(
-        { error: "Unauthorized - please log in" },
+        { error: "Unauthorized - invalid or missing token" },
         { status: 401 }
       );
     }
@@ -58,15 +57,6 @@ Please provide:
 
     const result = await model.generateContent(prompt);
     const analysis = result.response.text();
-
-    // Get user ID from session
-    const userId = (session.user as { id?: string }).id;
-    if (!userId) {
-      return NextResponse.json(
-        { error: "Could not determine user ID" },
-        { status: 400 }
-      );
-    }
 
     // Save to database
     const historyEntry = await prisma.historyEntry.create({
