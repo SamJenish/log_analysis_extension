@@ -15,7 +15,39 @@ const messageContainer = document.getElementById("message-container");
 document.addEventListener("DOMContentLoaded", async () => {
   await loadConfig();
   await checkAuthentication();
+  setupMessageListener();
 });
+
+// Listen for messages from login callback window
+function setupMessageListener() {
+  window.addEventListener("message", (event) => {
+    if (event.origin !== window.location.origin) {
+      return; // Ignore messages from other origins
+    }
+
+    if (event.data.type === "AUTH_TOKEN") {
+      const { token, user } = event.data;
+
+      if (token) {
+        // Store the token
+        chrome.runtime.sendMessage(
+          {
+            type: "SET_AUTH_TOKEN",
+            token: token,
+          },
+          (response) => {
+            if (response && response.success) {
+              showMessage("Authentication successful!", "success");
+              setTimeout(() => {
+                checkAuthentication();
+              }, 500);
+            }
+          }
+        );
+      }
+    }
+  });
+}
 
 // Load configuration
 async function loadConfig() {
@@ -44,7 +76,6 @@ function updateAuthUI(authenticated) {
     authBadge.className = "status-badge authenticated";
     loginBtn.classList.add("hidden");
     logoutBtn.classList.remove("hidden");
-    // TODO: Fetch and display user info
   } else {
     authBadge.textContent = "Not Authenticated";
     authBadge.className = "status-badge not-authenticated";
@@ -81,51 +112,91 @@ function isValidURL(string) {
 // Login with GitHub
 loginBtn.addEventListener("click", async () => {
   try {
-    // Get the backend URL
     const backendURL = backendUrlInput.value.trim() || "http://localhost:3000";
 
-    // Open the login page in a new tab
+    // Step 1: Open web app login page
     const loginUrl = `${backendURL}/api/auth/signin/github?callbackUrl=${encodeURIComponent(
-      chrome.runtime.getURL("login-callback.html")
+      `${backendURL}/extension-auth-callback`
     )}`;
 
-    chrome.tabs.create({ url: loginUrl }, (tab) => {
-      showMessage(
-        "Redirecting to GitHub login... Please complete the authentication.",
-        "info"
-      );
+    const tab = await chrome.tabs.create({ url: loginUrl });
 
-      // Listen for message from login callback
-      const messageListener = (message, sender) => {
-        if (message.type === "AUTH_TOKEN") {
-          chrome.runtime.onMessage.removeListener(messageListener);
+    showMessage(
+      "GitHub login tab opened. Please complete the login flow.",
+      "info"
+    );
 
-          // Store the token
-          chrome.runtime.sendMessage(
-            {
-              type: "SET_AUTH_TOKEN",
-              token: message.token,
-            },
-            (response) => {
-              if (response && response.success) {
-                showMessage("Authentication successful!", "success");
-                setTimeout(() => {
-                  checkAuthentication();
-                }, 500);
+    // Step 2: Wait for message from the callback
+    const messageListener = (message, sender) => {
+      if (
+        message.type === "AUTH_COMPLETE" &&
+        sender.tab &&
+        sender.tab.id === tab.id
+      ) {
+        chrome.runtime.onMessage.removeListener(messageListener);
 
-                // Close the login tab
-                chrome.tabs.remove(tab.id);
-              }
-            }
-          );
-        }
-      };
+        // Step 3: Call /api/auth/token to get JWT token
+        getTokenFromBackend(backendURL, tab.id);
+      }
+    };
 
-      chrome.runtime.onMessage.addListener(messageListener);
-    });
+    chrome.runtime.onMessage.addListener(messageListener);
   } catch (error) {
     console.error("Login error:", error);
     showMessage(`Login error: ${error.message}`, "error");
+  }
+});
+
+// Get JWT token from backend after successful GitHub OAuth
+async function getTokenFromBackend(backendURL, tabId) {
+  try {
+    // Execute script in the tab to get the token
+    chrome.tabs.executeScript(
+      tabId,
+      {
+        code: `
+        fetch('${backendURL}/api/auth/token')
+          .then(r => r.json())
+          .then(data => {
+            if (data.token) {
+              chrome.runtime.sendMessage({
+                type: "SET_AUTH_TOKEN_DIRECT",
+                token: data.token
+              });
+            }
+          })
+          .catch(err => console.error('Token fetch error:', err));
+      `,
+      },
+      (results) => {
+        // Close the login tab
+        chrome.tabs.remove(tabId);
+      }
+    );
+  } catch (error) {
+    console.error("Token fetch error:", error);
+    showMessage("Failed to retrieve token. Please try again.", "error");
+  }
+}
+
+// Listen for token from callback
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.type === "SET_AUTH_TOKEN_DIRECT") {
+    chrome.runtime.sendMessage(
+      {
+        type: "SET_AUTH_TOKEN",
+        token: message.token,
+      },
+      (response) => {
+        if (response && response.success) {
+          showMessage("Authentication successful!", "success");
+          setTimeout(() => {
+            checkAuthentication();
+          }, 500);
+        }
+      }
+    );
+    sendResponse({ success: true });
   }
 });
 
