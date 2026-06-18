@@ -58,7 +58,7 @@ Please provide:
     const result = await model.generateContent(prompt);
     const analysis = result.response.text();
 
-    // Save to database
+
     const historyEntry = await prisma.historyEntry.create({
       data: {
         userId,
