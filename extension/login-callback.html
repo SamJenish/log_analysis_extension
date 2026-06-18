@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Authenticating...</title>
+    <style>
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        font-family: system-ui, -apple-system, sans-serif;
+      }
+      .container {
+        text-align: center;
+        color: white;
+      }
+      h1 {
+        margin-bottom: 16px;
+      }
+      p {
+        opacity: 0.9;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Authenticating...</h1>
+      <p>Please wait while we complete your login.</p>
+    </div>
+
+    <script>
+      // This page is loaded after OAuth callback
+      // Extract the session token and send it to the extension
+      (async () => {
+        try {
+          // Try to get session from the backend
+          const response = await fetch("/api/auth/session");
+          const session = await response.json();
+
+          if (session && session.user) {
+            // Get the JWT token from the session
+            // Note: NextAuth stores the token in a cookie, we need to get it from there
+            // For the extension, we'll use the callbackUrl approach
+
+            // Send message to extension opener
+            if (window.opener) {
+              window.opener.postMessage(
+                {
+                  type: "AUTH_TOKEN",
+                  token: document.cookie
+                    .split("; ")
+                    .find((row) => row.startsWith("next-auth.session-token="))
+                    ?.split("=")[1] || "",
+                  user: session.user,
+                },
+                "*"
+              );
+
+              // Close this window
+              setTimeout(() => {
+                window.close();
+              }, 500);
+            } else {
+              // Fallback: redirect to extension options with token
+              window.location.href = chrome.runtime.getURL("options.html");
+            }
+          } else {
+            document.body.innerHTML =
+              "<p>Authentication failed. Please try again.</p>";
+          }
+        } catch (error) {
+          console.error("Auth callback error:", error);
+          document.body.innerHTML = "<p>Error during authentication.</p>";
+        }
+      })();
+    </script>
+  </body>
+</html>
