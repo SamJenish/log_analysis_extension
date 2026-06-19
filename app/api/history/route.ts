@@ -1,16 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { validateBearerToken } from "@/lib/token-validation";
 import { prisma } from "@/lib/prisma";
 
 export async function GET(request: NextRequest) {
   try {
-    // Check authentication
-    const session = await getServerSession(authOptions);
+    // Validate Bearer token from extension
+    const userId = await validateBearerToken(request);
 
-    if (!session || !session.user) {
+    if (!userId) {
       return NextResponse.json(
-        { error: "Unauthorized - please log in" },
+        { error: "Unauthorized - invalid or missing token" },
         { status: 401 }
       );
     }
@@ -19,14 +18,6 @@ export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams;
     const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
     const limit = Math.min(100, Math.max(1, parseInt(searchParams.get("limit") || "20", 10)));
-
-    const userId = (session.user as { id?: string }).id;
-    if (!userId) {
-      return NextResponse.json(
-        { error: "Could not determine user ID" },
-        { status: 400 }
-      );
-    }
 
     // Get total count
     const total = await prisma.historyEntry.count({
